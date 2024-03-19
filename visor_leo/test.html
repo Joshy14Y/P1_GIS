@@ -1,0 +1,51 @@
+<!DOCTYPE html> 
+<html> 
+  
+<head> 
+    <title>SVG viewBox Attribute</title> 
+    <meta http-equiv="refresh" content="5">
+      
+    <style type="text/css"> 
+        svg { 
+            border: 1px solid rgba(0, 224, 30, 0.342); 
+        } 
+    </style>
+    <script>
+        function nuevoSVG(id)
+        {
+            var xmlns = "http://www.w3.org/2000/svg";
+            figura=document.createElementNS(xmlns,"path"); 
+            d=document.createAttribute("d");
+            stroke=document.createAttribute("stroke");
+            stroke_width=document.createAttribute("stroke-width");
+            fill=document.createAttribute("fill");
+            stroke.value="black"; 
+            stroke_width.value="0.045"; 
+            fill.value="rgba(0, 224, 30, 0.342)";
+            d.value="M 452907.09 -1144325.03 l -8.03 19.38 -10.71 -4.3 8.08 -19.42 z M 452900.71 -1144323.77 l -1.89 3.75 3.71 1.22 1.21 -3.59 z M 452893.47 -1144306.14 l -1.32 3.49 4.71 2.12 1.52 -3.81 z" 
+            figura.setAttributeNode(d)
+            figura.setAttributeNode(stroke)
+            figura.setAttributeNode(stroke_width)
+            figura.setAttributeNode(fill)
+            console.log(figura)
+            document.getElementById("canva").appendChild(figura);
+        }
+    </script> 
+</head> 
+  
+<body onload="saluda('')"> 
+      
+    <!-- With viewBox -->
+    <svg id="canva" width="400" height="400" viewBox="452888.3472045854 -1144329.370320586 18.74040127301123 28.835341308964416"> 
+        <path d=
+        "M 452907.09 -1144325.03 l -8.03 19.38 -10.71 -4.3 8.08 -19.42 z 
+        M 452900.71 -1144323.77 l -1.89 3.75 3.71 1.22 1.21 -3.59 z 
+        M 452893.47 -1144306.14 l -1.32 3.49 4.71 2.12 1.52 -3.81 z"            
+        stroke="rgba(170, 170, 170, 0.342)"; 
+        stroke-width="1.045" 
+        fill="rgba(170, 170, 170, 0.842)" />
+
+    </svg>
+</body style="color: #F1FFFF"> 
+  
+</html>
