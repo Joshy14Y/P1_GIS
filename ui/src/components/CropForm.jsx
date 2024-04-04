@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Col,
@@ -7,7 +7,6 @@ import {
   Row,
   Stack,
   Table,
-  Pagination
 } from "react-bootstrap";
 import { FiEdit } from "react-icons/fi";
 import { MdDeleteForever } from "react-icons/md";
@@ -150,7 +149,7 @@ const CropTable = ({ cropList, setCropList, setEditingIndex, setCropData }) => {
   );
 };
 
-const CropForm = () => {
+const CropForm = ({}) => {
   const [cropList, setCropList] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [cropData, setCropData] = useState({
@@ -190,20 +189,20 @@ const CropForm = () => {
 
   return (
     <Container fluid className="m-0">
-      <CropEntry 
-        cropList={cropList} 
-        setCropList={setCropList} 
-        editingIndex={editingIndex} 
-        cropData={cropData} 
-        setCropData={setCropData} 
-        handleInputChange={handleInputChange} 
-        handleAddOrUpdateCrop={handleAddOrUpdateCrop} 
+      <CropEntry
+        cropList={cropList}
+        setCropList={setCropList}
+        editingIndex={editingIndex}
+        cropData={cropData}
+        setCropData={setCropData}
+        handleInputChange={handleInputChange}
+        handleAddOrUpdateCrop={handleAddOrUpdateCrop}
       />
-      <CropTable 
-        cropList={cropList} 
-        setCropList={setCropList} 
-        setEditingIndex={setEditingIndex} 
-        setCropData={setCropData} 
+      <CropTable
+        cropList={cropList}
+        setCropList={setCropList}
+        setEditingIndex={setEditingIndex}
+        setCropData={setCropData}
       />
     </Container>
   );
