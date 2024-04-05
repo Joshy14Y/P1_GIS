@@ -36,9 +36,9 @@ export const CropTable = ({ cropList, setCropList, setEditingIndex, setCropData 
                 {cropList.map((crop, index) => (
                     <tr key={index}>
                         <td>{crop.name}</td>
-                        <td>{crop.area}</td>
+                        <td>{crop.areaPerCrop}</td>
                         <td>{crop.quantity}</td>
-                        <td>{crop.area * crop.quantity}</td>
+                        <td>{crop.areaPerCrop * crop.quantity}</td>
                         <td>
                             <div
                                 style={{

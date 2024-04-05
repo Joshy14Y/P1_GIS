@@ -13,7 +13,7 @@ const CropForm = ({ cropList, setCropList }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [cropData, setCropData] = useState({
     name: "",
-    area: "",
+    areaPerCrop: "",
     quantity: "",
     color: "#000000", // Default color
   });
@@ -40,12 +40,12 @@ const CropForm = ({ cropList, setCropList }) => {
     // Reset form fields
     setCropData({
       name: "",
-      area: "",
+      areaPerCrop: "",
       quantity: "",
-      color: "#000000",
+      color: "#000000", // Default color
     });
   };
-  
+
   return (
     <Container fluid className="justify-content-center align-items-center">
       <CropEntry

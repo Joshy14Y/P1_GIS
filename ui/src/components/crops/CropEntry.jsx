@@ -24,9 +24,9 @@ export const CropEntry = ({ editingIndex, cropData, handleInputChange, handleAdd
                         <Form.Label>Area por Cultivo</Form.Label>
                         <Form.Control
                             type="number"
-                            name="area"
+                            name="areaPerCrop"
                             placeholder="0"
-                            value={cropData.area}
+                            value={cropData.areaPerCrop}
                             onChange={handleInputChange}
                         />
                     </Form.Group>
@@ -49,7 +49,7 @@ export const CropEntry = ({ editingIndex, cropData, handleInputChange, handleAdd
                         <Form.Control
                             type="number"
                             placeholder="0"
-                            value={cropData.area * cropData.quantity}
+                            value={cropData.areaPerCrop * cropData.quantity}
                             onChange={handleInputChange}
                             disabled
                         />

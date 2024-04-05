@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { getParcelas } from '../client/client.js'
-import { Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
+import { Button, Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import CropForm from '../components/crops/CropForm.jsx';
 import { VerticalCard } from '../components/cutCards/VerticalCard.jsx';
 import { HorizontallyCard } from '../components/cutCards/HorizontallyCard.jsx';
@@ -21,10 +21,15 @@ export default function MainPage() {
     const [cropList, setCropList] = useState([]);
     const [plots, setPlots] = useState([]);
     const [cut, setCut] = useState('');
-    const [activeTab, setActiveTab] = useState("corte");
+    const [activeTab, setActiveTab] = useState("resultado");
     const [activeAlert, setActiveAlert] = useState("");
     const [angle, setAngle] = useState(0);
     const [selectedPlotColor, setSelectedPlotColor] = useState("rgba(29,94,5, 0.5)");
+
+    const [selectedPlot, setSelectedPlot] = useState("");
+    const [selectedPlotIndex, setSelectedPlotIndex] = useState(-1);
+
+    const [mousePosition, setMousePosition] = useState({ posX: 0, posY: 0 })
 
     const getPlots = async () => {
         let data = []
@@ -36,7 +41,31 @@ export default function MainPage() {
         setPlots(data);
 
     }
+    const onSelectPlot = (plot, index) => {
+        setSelectedPlot(plot);
+        setSelectedPlotIndex(index);
+    }
 
+    const createPlots = (plots, selectedIndex) => {
+
+        return plots.map((objeto, index) => (
+            <g key={index} transform="scale(1)">
+                <path
+                    onMouseOver={(event) => console.log(event)}
+                    onMouseOut={() => console.log('sali de tu area')}
+                    d={objeto.svg_geom}
+                    stroke="black" // Color de la línea
+                    fill={index === selectedIndex ? 'rgba(255, 69, 0, 0.5)' : selectedPlotColor} // Relleno
+                    strokeWidth="1.090645035892012" // Ancho de la línea
+                    onClick={() => onSelectPlot(objeto, index)}
+                />
+            </g>
+        ))
+    }
+
+    useEffect(() => {
+        console.log('selected plot', selectedPlot);
+    }, [onSelectPlot])
 
     useEffect(() => {
         getPlots();
@@ -70,20 +99,13 @@ export default function MainPage() {
                 className='d-flex justify-content-center align-items-center'
             >
                 {activeTab === "terreno" && (
-                    <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
-                        <svg id="svg" width="650" height="500" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
-                            {plots.map((objeto, index) => (
-                                <g key={index} transform="scale(1)">
-                                    <path
-                                        d={objeto.svg_geom}
-                                        stroke="black" // Color de la línea
-                                        fill="rgba(29,94,5, 0.5)" // Relleno
-                                        strokeWidth="1.090645035892012" // Ancho de la línea
-                                        onClick={() => console.log('click', objeto)}
-                                    />
-                                </g>
-                            ))}
-                        </svg>
+                    <div>
+                        <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione el terreno</h1>
+                        <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
+                            <svg id="svg" width="650" height="500" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
+                                {createPlots(plots, selectedPlotIndex)}
+                            </svg>
+                        </div>
                     </div>
                 )}
 
@@ -94,10 +116,13 @@ export default function MainPage() {
                 title="Cultivos"
             >
                 {activeTab === "cultivos" && (
-                    <CropForm
-                        cropList={cropList}
-                        setCropList={setCropList}
-                    />
+                    <div>
+                        <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione los cultivos</h1>
+                        <CropForm
+                            cropList={cropList}
+                            setCropList={setCropList}
+                        />
+                    </div>
                 )}
 
             </Tab>
@@ -145,8 +170,30 @@ export default function MainPage() {
                     </Container>
                 )}
             </Tab>
-            <Tab eventKey="resultado" title="Resultado">
-                Tab content for Contact
+            <Tab eventKey="resultado" title="Resultado" className='d-flex justify-content-center align-items-center'>
+                {activeTab === "resultado" && (
+                    <Container>
+                        <div className='align-items-center justify-content-center'>
+                            <h1 style={{ textAlign: 'center' }}>Resultados obtenidos</h1>
+                            <Row>
+                                <Col sm className='mb-2'>
+
+                                </Col>
+                                <Col sm className='mb-2'>
+                                    <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
+                                        <svg id="svg" width="450" height="300" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
+                                            { /* cargar el resultado optenido */}
+                                        </svg>
+                                    </div>
+                                </Col>
+                                <Col sm className='mb-2'>
+                                    <Button variant="primary" >Generar Resultado</Button>
+                                </Col>
+
+                            </Row>
+                        </div>
+                    </Container>
+                )}
             </Tab>
         </Tabs>
     )
