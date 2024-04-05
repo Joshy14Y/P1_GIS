@@ -7,6 +7,7 @@ import { VerticalCard } from '../components/cutCards/VerticalCard.jsx';
 import { HorizontallyCard } from '../components/cutCards/HorizontallyCard.jsx';
 import { GridCard } from '../components/cutCards/GridCard.jsx';
 import { CustomCard } from '../components/cutCards/CustomCard.jsx';
+import { ResultFormData } from '../components/resultForm/ResultFormData.jsx';
 
 /*
 
@@ -95,14 +96,14 @@ export default function MainPage() {
         >
             <Tab
                 eventKey="terreno"
-                title="Terreno"
+                title="Terrenos"
                 className='d-flex justify-content-center align-items-center'
             >
                 {activeTab === "terreno" && (
                     <div>
                         <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione el terreno</h1>
                         <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
-                            <svg id="svg" width="650" height="500" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
+                            <svg id="svg" width="600" height="400" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
                                 {createPlots(plots, selectedPlotIndex)}
                             </svg>
                         </div>
@@ -128,7 +129,7 @@ export default function MainPage() {
             </Tab>
             <Tab
                 eventKey="corte"
-                title="Tipo de Corte"
+                title="Tipo de Cortes"
                 className='m-2 d-flex align-items-center justify-content-center'
             >
                 {activeTab === "corte" && ( // Renderizar solo si el tab activo es "corte"
@@ -170,24 +171,22 @@ export default function MainPage() {
                     </Container>
                 )}
             </Tab>
-            <Tab eventKey="resultado" title="Resultado" className='d-flex justify-content-center align-items-center'>
+            <Tab eventKey="resultado" title="Resultados" className='d-flex justify-content-center align-items-center'>
                 {activeTab === "resultado" && (
                     <Container>
                         <div className='align-items-center justify-content-center'>
                             <h1 style={{ textAlign: 'center' }}>Resultados obtenidos</h1>
                             <Row>
                                 <Col sm className='mb-2'>
-
+                                    <ResultFormData/>
                                 </Col>
-                                <Col sm className='mb-2'>
-                                    <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
+                                <Col sm className='mb-2  d-flex flex-column align-items-center'>
+                                    <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px', alignContent: 'center', alignItems: 'center' }}>
                                         <svg id="svg" width="450" height="300" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
                                             { /* cargar el resultado optenido */}
                                         </svg>
                                     </div>
-                                </Col>
-                                <Col sm className='mb-2'>
-                                    <Button variant="primary" >Generar Resultado</Button>
+                                    <Button className='mt-3' variant="primary" >Generar Resultado</Button>
                                 </Col>
 
                             </Row>
