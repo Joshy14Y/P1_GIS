@@ -139,6 +139,40 @@ app.get("/grid-cuts", async (req, res) => {
   }
 });
 
+// Endpoint for rotated cuts
+app.get("/rotated-cuts", async (req, res) => {
+  try {
+    const { geometry, cuts, rotation } = req.query;
+
+    // Parse the cuts parameter as JSON
+    const cutsArray = JSON.parse(cuts);
+    
+    // Convert rotation to integer
+    const rotationInteger = parseInt(rotation);
+
+    const client = await pool.connect();
+    const result = await client.query(
+      `SELECT ST_Area(geom) AS area, geom, ST_AsSVG(geom) AS geom_svg
+       FROM unnest(cortes_rotacion_g2($1, $2, $3)) AS geom`,
+      [geometry, cutsArray, rotationInteger]
+    );
+    const { rows } = result;
+
+    // Extract the areas and geometries from the rows
+    const rotatedCuts = rows.map((row) => ({
+      area: row.area,
+      geom: row.geom,
+      geom_svg: row.geom_svg
+    }));
+
+    res.json({ rotatedCuts });
+    client.release();
+  } catch (err) {
+    console.error("Error executing rotated cuts:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Start the Express server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
