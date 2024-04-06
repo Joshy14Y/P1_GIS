@@ -122,7 +122,7 @@ app.get("/grid-cuts", async (req, res) => {
     // Call the cortes_cuadricula function with the provided geometry
     const result = await client.query(
       `SELECT ST_Area(geom) AS area, geom, ST_AsSVG(geom) AS geom_svg
-       FROM unnest(cortes_cuadricula($1, $2, $3)) AS geom`,
+       FROM unnest(cortes_cuadricula_g2($1, $2, $3)) AS geom`,
       [geometry, cutsArray, cantidadxColumn]
     );
 

@@ -1,7 +1,7 @@
 
 
 import Form from 'react-bootstrap/Form';
-import { Button, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 
 export const ResultFormData = () => {
 
@@ -10,11 +10,15 @@ export const ResultFormData = () => {
             <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Row>
                     <Col className="text-center my-1">
-                        <Form.Label>Tamaño del terreno</Form.Label>
+                        <Form.Label>Tamaño del terreno seleccionado</Form.Label>
                         <Form.Control type="text" disabled value={"sad"} />
                     </Col>
                     <Col className="text-center my-1">
-                        <Form.Label>Tamaño total de los cultivos</Form.Label>
+                        <Form.Label>Suma del area de los cultivos</Form.Label>
+                        <Form.Control type="text" disabled value={"sad"} />
+                    </Col>
+                    <Col className="text-center my-1">
+                        <Form.Label>Tipo de Corte seleccionado</Form.Label>
                         <Form.Control type="text" disabled value={"sad"} />
                     </Col>
                 </Row>

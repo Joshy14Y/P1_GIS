@@ -21,7 +21,7 @@ export const CustomCard = ({ setCut, activeAlert, setActiveAlert, setAngle }) =>
   }
   return (
     <Card style={{ width: '16rem' }}>
-      <Card.Img variant="top" src="Corte_Horizontal.jpg" />
+      <Card.Img variant="top" src="Corte_Personalizado.jpg" />
       <Card.Body>
         <Card.Title>Corte Personalizado</Card.Title>
         <Form.Label htmlFor="inputAngle">Ingrese el número del angulo a elegir.</Form.Label>

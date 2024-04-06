@@ -16,7 +16,7 @@ export async function getParcelas() {
 }
 
 // Define a function to fetch horizontal cuts
-async function getHorizontalCuts(geometry, cuts) {
+export async function getHorizontalCuts(geometry, cuts) {
   try {
     const response = await axios.get(`${baseURL}/horizontal-cuts`, {
       params: { geometry, cuts },
@@ -29,7 +29,7 @@ async function getHorizontalCuts(geometry, cuts) {
 }
 
 // Define a function to fetch vertical cuts
-async function getVerticalCuts(geometry, cuts) {
+export async function getVerticalCuts(geometry, cuts) {
   try {
     const response = await axios.get(`${baseURL}/vertical-cuts`, {
       params: { geometry, cuts },
@@ -42,7 +42,7 @@ async function getVerticalCuts(geometry, cuts) {
 }
 
 // Define a function to fetch grid cuts
-async function getGridCuts(geometry, cuts, cantidadxColumn) {
+export async function getGridCuts(geometry, cuts, cantidadxColumn) {
   try {
     const response = await axios.get(`${baseURL}/grid-cuts`, {
       params: { geometry, cuts, cantidadxColumn },

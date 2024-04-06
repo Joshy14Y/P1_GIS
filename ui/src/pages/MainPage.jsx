@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { getParcelas } from '../client/client.js'
+import { getHorizontalCuts, getParcelas } from '../client/client.js'
 import { Button, Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import CropForm from '../components/crops/CropForm.jsx';
 import { VerticalCard } from '../components/cutCards/VerticalCard.jsx';
@@ -19,18 +19,17 @@ import { ResultFormData } from '../components/resultForm/ResultFormData.jsx';
 */
 export default function MainPage() {
 
-    const [cropList, setCropList] = useState([]);
-    const [plots, setPlots] = useState([]);
-    const [cut, setCut] = useState('');
+    const [cropList, setCropList] = useState([]); // lista de cultivos
+    const [plots, setPlots] = useState([]); // lista de terrenos
+    const [cut, setCut] = useState(''); // string con el corte elegido
     const [activeTab, setActiveTab] = useState("resultado");
     const [activeAlert, setActiveAlert] = useState("");
-    const [angle, setAngle] = useState(0);
-    const [selectedPlotColor, setSelectedPlotColor] = useState("rgba(29,94,5, 0.5)");
+    const [angle, setAngle] = useState(0); // angulo elegido para el corte personalidazo
+    const [selectedPlotColor] = useState("rgba(29,94,5, 0.5)"); // color por defecto para pintar los terrenos 
 
-    const [selectedPlot, setSelectedPlot] = useState("");
-    const [selectedPlotIndex, setSelectedPlotIndex] = useState(-1);
-
-    const [mousePosition, setMousePosition] = useState({ posX: 0, posY: 0 })
+    const [selectedPlot, setSelectedPlot] = useState(""); // guarda el terreno elegido para trabajar 
+    const [selectedPlotIndex, setSelectedPlotIndex] = useState(-1); // guarda el index del terreno elegido
+    const [totalCropsArea, setTotalCropsArea] = useState(0);
 
     const getPlots = async () => {
         let data = []
@@ -62,6 +61,38 @@ export default function MainPage() {
                 />
             </g>
         ))
+    }
+
+    const checkDataForResult = async () => {
+        let cutList = []
+        let result = null
+        cropList.map((crop) => {
+            setTotalCropsArea(totalCropsArea + (crop.areaPerCrop * crop.quantity))
+            cutList.push(crop.areaPerCrop * crop.quantity)
+        })
+
+        //if (selectedPlot.area < totalCropsArea) return;
+        console.log(cut)
+        switch (cut) {
+            case 'vertical':
+
+                break;
+            case 'horizontal':
+                console.log('selectedPlot.geom', selectedPlot.geom);
+                console.log('cutList',cutList);
+                result = await getHorizontalCuts(selectedPlot.geom, cutList);
+                console.log(result);
+                break;
+            case 'grid':
+
+                break;
+            case 'custom':
+
+                break;
+            default:
+                break;
+        }
+
     }
 
     useEffect(() => {
@@ -178,7 +209,7 @@ export default function MainPage() {
                             <h1 style={{ textAlign: 'center' }}>Resultados obtenidos</h1>
                             <Row>
                                 <Col sm className='mb-2'>
-                                    <ResultFormData/>
+                                    <ResultFormData />
                                 </Col>
                                 <Col sm className='mb-2  d-flex flex-column align-items-center'>
                                     <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px', alignContent: 'center', alignItems: 'center' }}>
@@ -186,7 +217,7 @@ export default function MainPage() {
                                             { /* cargar el resultado optenido */}
                                         </svg>
                                     </div>
-                                    <Button className='mt-3' variant="primary" >Generar Resultado</Button>
+                                    <Button className='mt-3' variant="primary" onClick={checkDataForResult} >Generar Resultado</Button>
                                 </Col>
 
                             </Row>
