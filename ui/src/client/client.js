@@ -8,7 +8,7 @@ const baseURL = 'http://localhost:3000';
 export async function getParcelas() {
   try {
     const response = await axios.get(`${baseURL}/parcelas`);
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error('Error fetching parcelas:', error.response.data);
     throw error;
@@ -18,9 +18,8 @@ export async function getParcelas() {
 // Define a function to fetch horizontal cuts
 export async function getHorizontalCuts(geometry, cuts) {
   try {
-    const response = await axios.get(`${baseURL}/horizontal-cuts`, {
-      params: { geometry, cuts },
-    });
+    const url = `${baseURL}/horizontal-cuts?geometry=${geometry}&cuts=${JSON.stringify(cuts)}`;
+    const response = await axios.get(url);
     return response.data.horizontalCuts;
   } catch (error) {
     console.error('Error fetching horizontal cuts:', error.response.data);
@@ -31,9 +30,8 @@ export async function getHorizontalCuts(geometry, cuts) {
 // Define a function to fetch vertical cuts
 export async function getVerticalCuts(geometry, cuts) {
   try {
-    const response = await axios.get(`${baseURL}/vertical-cuts`, {
-      params: { geometry, cuts },
-    });
+    const url = `${baseURL}/vertical-cuts?geometry=${geometry}&cuts=${JSON.stringify(cuts)}`;
+    const response = await axios.get(url);
     return response.data.verticalCuts;
   } catch (error) {
     console.error('Error fetching vertical cuts:', error.response.data);
@@ -44,14 +42,23 @@ export async function getVerticalCuts(geometry, cuts) {
 // Define a function to fetch grid cuts
 export async function getGridCuts(geometry, cuts, cantidadxColumn) {
   try {
-    const response = await axios.get(`${baseURL}/grid-cuts`, {
-      params: { geometry, cuts, cantidadxColumn },
-    });
+    const url = `${baseURL}/grid-cuts?geometry=${geometry}&cuts=${JSON.stringify(cuts)}&cantidadxColumn=${cantidadxColumn}`;
+    const response = await axios.get(url);
     return response.data.gridCuts;
   } catch (error) {
     console.error('Error fetching grid cuts:', error.response.data);
     throw error;
   }
-
 }
 
+// Define a function to fetch grid cuts
+export async function getCustomCuts(geometry, cuts, rotation) {
+  try {
+    const url = `${baseURL}/rotated-cuts?geometry=${geometry}&cuts=${JSON.stringify(cuts)}&rotation=${rotation}`;
+    const response = await axios.get(url);
+    return response.data.rotatedCuts;
+  } catch (error) {
+    console.error('Error fetching custom cuts:', error.response.data);
+    throw error;
+  }
+}

@@ -1,6 +1,6 @@
 
 
-import { Button, Card, Row, Col,Form } from "react-bootstrap"
+import { Button, Card, Row, Col, Form } from "react-bootstrap"
 import Alert from 'react-bootstrap/Alert';
 import PropTypes from 'prop-types';
 import { useState } from "react";
@@ -17,20 +17,32 @@ export const CustomCard = ({ setCut, activeAlert, setActiveAlert, setAngle }) =>
   }
   // Función para manejar cambios en el campo de entrada
   const handleChange = (event) => {
-    setAngleValue(event.target.value);
+
+    let value = event.target.value;
+
+    // Verificar que el valor esté dentro del rango permitido
+    if (value < 0) {
+      value = 0;
+    } else if (value > 90) {
+      value = 90;
+    }
+    
+    setAngleValue(value);
   }
   return (
     <Card style={{ width: '16rem' }}>
       <Card.Img variant="top" src="Corte_Personalizado.jpg" />
       <Card.Body>
         <Card.Title>Corte Personalizado</Card.Title>
-        <Form.Label htmlFor="inputAngle">Ingrese el número del angulo a elegir.</Form.Label>
+        <Form.Label htmlFor="inputAngle">Ingrese el número del angulo a elegir, debe estar entre 10 y 90.</Form.Label>
         <Form.Control
           type="number"
           id="inputAngle"
           aria-describedby="passwordHelpBlock"
           value={angleValue} // Valor del campo de entrada
           onChange={handleChange} // Manejador de cambios
+          min={10} // Valor mínimo permitido
+          max={90} // Valor máximo permitido
         />
         <Row>
           <Col sm className='mb-2 mt-2'>

@@ -14,7 +14,7 @@ const pool = new Pool({
   host: process.env.HOST,
   database: process.env.DATABASE,
   password: process.env.PASSWORD,
-  port: 15432, // Default port 5432 if not specified in .env
+  port: process.env.PORT, // Default port 5432 if not specified in .env
 });
 
 console.log(pool);
