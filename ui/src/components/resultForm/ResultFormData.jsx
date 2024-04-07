@@ -12,15 +12,20 @@ export const ResultFormData = ({ selectedPlot, cut, cropList, responseData, tota
                 <Row>
                     <Col className="text-center my-1">
                         <Form.Label>Tamaño del terreno seleccionado</Form.Label>
-                        <Form.Control type="text" disabled value={selectedPlot.area} />
+                        <Form.Control type="text" disabled value={`${selectedPlot.area}m²`} />
                     </Col>
                     <Col className="text-center my-1">
                         <Form.Label>Suma del area de los cultivos</Form.Label>
-                        <Form.Control type="text" disabled value={totalCropsArea} />
+                        <Form.Control type="text" disabled value={`${totalCropsArea}m²`} />
                     </Col>
                     <Col className="text-center my-1">
                         <Form.Label>Tipo de Corte seleccionado</Form.Label>
-                        <Form.Control type="text" disabled value={cut} />
+                        <Form.Control type="text" disabled
+                            value={
+                                cut === 'custom' ? 'Personalizado' :
+                                    cut === 'grid' ? 'Cuadrícula' :
+                                        cut // Si cut no es ni 'custom' ni 'grid', simplemente utiliza su valor actual
+                            } />
                     </Col>
                 </Row>
             </Form.Group>
@@ -34,11 +39,11 @@ export const ResultFormData = ({ selectedPlot, cut, cropList, responseData, tota
                         </Col>
                         <Col className="text-center my-1">
                             <Form.Label>Area total</Form.Label>
-                            <Form.Control type="text" disabled value={crop.areaPerCrop * crop.quantity} />
+                            <Form.Control type="text" disabled value={`${crop.areaPerCrop * crop.quantity}m²`} />
                         </Col>
                         <Col className="text-center my-1">
                             <Form.Label>Area Asignada</Form.Label>
-                            <Form.Control type="text" disabled value={responseData[index].area.toFixed(2)} />
+                            <Form.Control type="text" disabled value={`${responseData[index].area.toFixed(2)}m²`} />
                         </Col>
                         <Col className="text-center my-1">
                             <Form.Label>Color</Form.Label>

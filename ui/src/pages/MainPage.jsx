@@ -12,6 +12,7 @@ import { gridCuts, horizontalCuts, verticalCuts, customCuts } from '../utils.js'
 import { AlertResult } from '../components/alert/AlertResult.jsx';
 import { UndefinedAlert } from '../components/alert/UndefinedAlert.jsx';
 import { OversizedAlert } from '../components/alert/OversizedAlert.jsx';
+import { SelectedPlotForm } from '../components/resultForm/SelectedPlotForm.jsx';
 
 /*
 
@@ -27,7 +28,7 @@ export default function MainPage() {
     const [plots, setPlots] = useState([]); // lista de terrenos
     const [cut, setCut] = useState(''); // string con el corte elegido
     const [cutList, setCutList] = useState([]); // lista de los cortes a realizar
-    const [activeTab, setActiveTab] = useState("cultivos"); //tiene el tab activo
+    const [activeTab, setActiveTab] = useState("terreno"); //tiene el tab activo
     const [activeAlert, setActiveAlert] = useState(""); // alerta de que llene todos los campos en el form de cultivos
     const [angle, setAngle] = useState(10); // angulo elegido para el corte personalidazo
     const [selectedPlotColor] = useState("rgba(29,94,5, 0.5)"); // color por defecto para pintar los terrenos 
@@ -182,7 +183,7 @@ export default function MainPage() {
             return cropList[index].color
         }
         else {
-            return 'rgba(255, 69, 0, 0.5)'
+            return 'rgba(29,94,5, 0.5)'
         }
     }
 
@@ -216,14 +217,27 @@ export default function MainPage() {
                 className='d-flex justify-content-center align-items-center'
             >
                 {activeTab === "terreno" && (
-                    <div>
-                        <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione el terreno</h1>
-                        <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
-                            <svg id="svg" width="600" height="400" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
-                                {createPlots(plots, selectedPlotIndex)}
-                            </svg>
-                        </div>
-                    </div>
+                    <Row>
+                        <Col sm className='mb-2 d-flex flex-column align-items-center'>
+                            <div>
+                                <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione la parcela</h1>
+                                <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
+                                    <svg id="svg" width="600" height="400" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
+                                        {createPlots(plots, selectedPlotIndex)}
+                                    </svg>
+                                </div>
+                            </div>
+                        </Col>
+                        <Col sm className='mb-2 text-center'> {/* Agregamos la clase 'text-center' */}
+                            <div className='mt-5 text-center'>
+                                <SelectedPlotForm
+                                    selectedPlot={selectedPlot}
+                                    selectedPlotIndex={selectedPlotIndex}
+                                />
+                            </div>
+                        </Col>
+                    </Row>
+
                 )}
 
             </Tab>
@@ -234,7 +248,7 @@ export default function MainPage() {
             >
                 {activeTab === "cultivos" && (
                     <div>
-                        <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione los cultivos</h1>
+                        <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Agregue cultivos</h1>
                         <CropForm
                             cropList={cropList}
                             setCropList={setCropList}
