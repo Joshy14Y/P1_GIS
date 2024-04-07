@@ -9,6 +9,9 @@ import { GridCard } from '../components/cutCards/GridCard.jsx';
 import { CustomCard } from '../components/cutCards/CustomCard.jsx';
 import { ResultFormData } from '../components/resultForm/ResultFormData.jsx';
 import { gridCuts, horizontalCuts, verticalCuts, customCuts } from '../utils.js';
+import { AlertResult } from '../components/alert/AlertResult.jsx';
+import { UndefinedAlert } from '../components/alert/UndefinedAlert.jsx';
+import { OversizedAlert } from '../components/alert/OversizedAlert.jsx';
 
 /*
 
@@ -24,20 +27,20 @@ export default function MainPage() {
     const [plots, setPlots] = useState([]); // lista de terrenos
     const [cut, setCut] = useState(''); // string con el corte elegido
     const [cutList, setCutList] = useState([]); // lista de los cortes a realizar
-    const [activeTab, setActiveTab] = useState("cultivos");
-    const [activeAlert, setActiveAlert] = useState("");
+    const [activeTab, setActiveTab] = useState("cultivos"); //tiene el tab activo
+    const [activeAlert, setActiveAlert] = useState(""); // alerta de que llene todos los campos en el form de cultivos
     const [angle, setAngle] = useState(10); // angulo elegido para el corte personalidazo
     const [selectedPlotColor] = useState("rgba(29,94,5, 0.5)"); // color por defecto para pintar los terrenos 
-
     const [selectedPlot, setSelectedPlot] = useState({}); // guarda el terreno elegido para trabajar 
     const [selectedPlotIndex, setSelectedPlotIndex] = useState(-1); // guarda el index del terreno elegido
-    const [totalCropsArea, setTotalCropsArea] = useState(0);
-
-    const [splitList, setSplitList] = useState([]);
-
+    const [totalCropsArea, setTotalCropsArea] = useState(0); // suma del total de las areas de los cultivos
+    const [splitList, setSplitList] = useState([]);  // lista que se usa para el corte grid
     const [responseData, setResponseData] = useState([]); // tiene la respuesta de la peticion al backend
+    const [resultFlag, setResultFlag] = useState(false); // flag que permite mostrar los componentes del resultado
 
-    const [resultFlag, setResultFlag] = useState(false);
+    const [missingDataFlag, setMissingDataFlag] = useState(false);
+    const [undefinedFlag, setUndefinedFlag] = useState(false);
+    const [oversized, setOversized] = useState(false);
 
     const getPlots = async () => {
         let data = []
@@ -76,7 +79,7 @@ export default function MainPage() {
 
         // Agregar un 0 al final si la longitud de la lista es impar
         if (length % 2 !== 0) {
-            list.push(0);
+            list.unshift(0);
             length = list.length;
         }
 
@@ -86,13 +89,16 @@ export default function MainPage() {
         // Agregar las dos sublistas a splitList
         splitList_.push(list.slice(0, middleIndex));
         splitList_.push(list.slice(middleIndex));
+        console.log('splitList_', splitList_)
         setSplitList(splitList_);
         return { List: splitList_, middleIndex: middleIndex };
     }
 
 
     const checkDataForResult = async () => {
+        setMissingDataFlag(false)
         setResultFlag(false);
+        setOversized(false);
         setTotalCropsArea(0);
         let dataFromSplit = []
         let retrieveData = []
@@ -100,67 +106,94 @@ export default function MainPage() {
         if (cropList.length === 0) {
             //bandera de que agregue cultivos
             console.log('sin cultivos')
+            setMissingDataFlag(true)
             return
         }
 
         if (Object.keys(selectedPlot).length === 0) {
             //bandera de que elija un terreno
             console.log('sin terreno')
+            setMissingDataFlag(true)
             return
         }
 
         if (cut === '') {
             //bandera de que un corte
             console.log('sin corte')
+            setMissingDataFlag(true)
             return
         }
 
-        cropList.map((crop) => {
-            let cropTotalArea = crop.areaPerCrop * crop.quantity;
-            setTotalCropsArea((prevTotalCropsArea) => cropTotalArea + prevTotalCropsArea);
-        })
-
         const newCutList = cropList.map((crop) => crop.areaPerCrop * crop.quantity);
-        console.log('newCutList', newCutList)
         setCutList(newCutList);
 
-        if (selectedPlot.area < totalCropsArea) return;
+        const newCropTotalArea = newCutList.reduce((totalArea, crop) => totalArea + crop, 0);
+        setTotalCropsArea(newCropTotalArea);
 
+
+        if (selectedPlot.area < newCropTotalArea) {
+            setOversized(true);
+            return;
+        }
+        console.log('cut', cut);
         switch (cut) {
             case 'vertical':
-                retrieveData = await verticalCuts(selectedPlot.geom, cutList);
-                if (retrieveData === undefined) return;
+                retrieveData = await verticalCuts(selectedPlot.geom, newCutList);
+                if (retrieveData === undefined) {
+                    setUndefinedFlag(true);
+                    return;
+                }
                 setResponseData(retrieveData);
                 break;
             case 'horizontal':
-                retrieveData = await horizontalCuts(selectedPlot.geom, cutList);
-                if (retrieveData === undefined) return;
+                retrieveData = await horizontalCuts(selectedPlot.geom, newCutList);
+                if (retrieveData === undefined) {
+                    setUndefinedFlag(true);
+                    return;
+                }
                 setResponseData(retrieveData);
                 break;
             case 'grid':
                 dataFromSplit = splitListFun(newCutList);
                 retrieveData = await gridCuts(selectedPlot.geom, dataFromSplit.List, dataFromSplit.middleIndex);
-                if (retrieveData === undefined) return;
+                if (retrieveData === undefined) {
+                    setUndefinedFlag(true);
+                    return;
+                }
                 setResponseData(retrieveData);
                 break;
             case 'custom':
-                retrieveData = await customCuts(selectedPlot.geom, cutList, angle);
-                if (retrieveData === undefined) return;
+                retrieveData = await customCuts(selectedPlot.geom, newCutList, angle);
+                if (retrieveData === undefined) {
+                    setUndefinedFlag(true);
+                    return;
+                }
                 setResponseData(retrieveData);
                 break;
-            default:
-                break;
         }
-
-        //clearStates()
-        //dataFromSplit = []
-        //retrieveData = []
         setResultFlag(true);
+    }
+
+    const chooseColor = (index, cropList) => {
+        console.log('chooseColor', cropList)
+        let length = cropList.length;
+        if (index <= (length - 1)) {
+            console.log(cropList[index])
+            return cropList[index].color
+        }
+        else {
+            return 'rgba(255, 69, 0, 0.5)'
+        }
     }
 
     useEffect(() => {
         getPlots();
     }, [])
+
+    useEffect(() => {
+        setResultFlag(false);
+        setResponseData([]);
+    }, [cut])
 
     useEffect(() => {
         console.log('Lista de cultivos', cropList)
@@ -257,44 +290,63 @@ export default function MainPage() {
             <Tab eventKey="resultado" title="Resultados" className='d-flex justify-content-center align-items-center'>
                 {activeTab === "resultado" && (
                     <Container>
-                        <div className='align-items-center justify-content-center'>
-                            <h1 style={{ textAlign: 'center' }}>Resultados obtenidos</h1>
-                            <Row>
-                                <Col sm className='mb-2'>
-                                    {resultFlag === true && (
-                                        <ResultFormData
-                                            selectedPlot={selectedPlot}
-                                            cut={cut}
-                                            cropList={cropList}
-                                            responseData={responseData}
-                                            totalCropsArea={totalCropsArea}
-                                            splitList={splitList}
-                                        />
-                                    )}
-                                </Col>
-                                <Col sm className='mb-2  d-flex flex-column align-items-center'>
-                                    <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px', alignContent: 'center', alignItems: 'center' }}>
-                                        {resultFlag === true && (
-                                            <svg id="svg" width="450" height="300" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
-                                                {console.log(responseData)}
-                                                {
-                                                    responseData.map((crop, index) => {
-                                                        <g key={index} transform="scale(1)">
-                                                            <path
-                                                                d={crop.geom_svg}
-                                                                stroke="black" // Color de la línea
-                                                                fill={'rgba(255, 69, 0, 0.5)'} // Relleno
-                                                                strokeWidth="1.090645035892012" // Ancho de la línea
-                                                            />
-                                                        </g>
-                                                    })
-                                                }
-                                            </svg>
-                                        )}
-                                    </div>
-                                    <Button className='mt-3' variant="primary" onClick={checkDataForResult} >Generar Resultado</Button>
-                                </Col>
-                            </Row>
+                        <div className='d-flex flex-column align-items-center justify-content-center'>
+                            <Button className='mt-3 mb-3' size="lg" variant="primary" onClick={checkDataForResult}>Generar Resultado</Button>
+                            <div>
+                                <h1 style={{ textAlign: 'center' }}>Resultados obtenidos</h1>
+                                {oversized === true && (
+                                    <OversizedAlert
+                                        oversized={oversized}
+                                        setOversized={setOversized}
+                                    />)
+                                }
+                                {missingDataFlag === true && (
+                                    <AlertResult
+                                        missingDataFlag={missingDataFlag}
+                                        setMissingDataFlag={setMissingDataFlag}
+                                    />)
+                                }
+                                {undefinedFlag === true && (
+                                    <UndefinedAlert
+                                        undefinedFlag={undefinedFlag}
+                                        setUndefinedFlag={setUndefinedFlag}
+                                    />)
+                                }
+                                {resultFlag === true && (
+                                    <Row>
+                                        <Col sm className='mb-2'>
+                                            <ResultFormData
+                                                selectedPlot={selectedPlot}
+                                                cut={cut}
+                                                cropList={cropList}
+                                                responseData={responseData}
+                                                totalCropsArea={totalCropsArea}
+                                                splitList={splitList}
+                                            />
+                                        </Col>
+                                        <Col sm className='mb-2 d-flex flex-column align-items-center'>
+                                            <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px', alignContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+                                                <svg id="svg" width="100%" height="100%" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183" preserveAspectRatio="xMidYMid meet">
+                                                    {
+                                                        responseData.map((crop, index) => {
+                                                            return (
+                                                                <g key={index} transform="scale(1)">
+                                                                    <path
+                                                                        d={crop.geom_svg}
+                                                                        stroke="black" // Color de la línea
+                                                                        //fill='rgba(255, 69, 0, 0.5)' // Relleno
+                                                                        fill={chooseColor(index, cropList)} // Relleno
+                                                                        strokeWidth="2" // Ancho de la línea
+                                                                    />
+                                                                </g>)
+                                                        })
+                                                    }
+                                                </svg>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                )}
+                            </div>
                         </div>
                     </Container>
                 )}

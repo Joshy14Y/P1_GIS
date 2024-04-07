@@ -89,7 +89,7 @@ app.get("/vertical-cuts", async (req, res) => {
     const client = await pool.connect();
     const result = await client.query(
       `SELECT ST_Area(geom) AS area, geom, ST_AsSVG(geom) AS geom_svg
-      FROM unnest(cortes_verticales2($1, $2)) AS geom`,
+      FROM unnest(cortes_verticales_g2($1, $2)) AS geom`,
       [geometry, cutsArray]
     );
     const { rows } = result;

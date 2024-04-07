@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import { Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-export const ResultFormData = ({ selectedPlot, cut, cropList, responseData, totalCropsArea, splitList }) => {
+export const ResultFormData = ({ selectedPlot, cut, cropList, responseData, totalCropsArea }) => {
 
     return (
         <Form>
