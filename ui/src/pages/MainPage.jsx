@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { getParcelas } from '../client/client.js'
 import { Button, Col, Container, Row, Tab, Tabs } from 'react-bootstrap';
 import CropForm from '../components/crops/CropForm.jsx';
@@ -32,7 +32,7 @@ export default function MainPage() {
     const [activeAlert, setActiveAlert] = useState(""); // alerta de que llene todos los campos en el form de cultivos
     const [angle, setAngle] = useState(10); // angulo elegido para el corte personalidazo
     const [selectedPlotColor] = useState("rgba(29,94,5, 0.5)"); // color por defecto para pintar los terrenos 
-    const [selectedPlot, setSelectedPlot] = useState({}); // guarda el terreno elegido para trabajar 
+    const [selectedPlot, setSelectedPlot] = useState(undefined); // guarda el terreno elegido para trabajar 
     const [selectedPlotIndex, setSelectedPlotIndex] = useState(-1); // guarda el index del terreno elegido
     const [totalCropsArea, setTotalCropsArea] = useState(0); // suma del total de las areas de los cultivos
     const [splitList, setSplitList] = useState([]);  // lista que se usa para el corte grid
@@ -42,6 +42,9 @@ export default function MainPage() {
     const [missingDataFlag, setMissingDataFlag] = useState(false);
     const [undefinedFlag, setUndefinedFlag] = useState(false);
     const [oversized, setOversized] = useState(false);
+
+    const [minX, setMinX] = useState(0);
+    const [minY, setMinY] = useState(0)
 
     const getPlots = async () => {
         let data = []
@@ -187,6 +190,34 @@ export default function MainPage() {
         }
     }
 
+    function extraerCoordenadas(punto) {
+        const coordenadas = punto.split(" ");
+        return { x: parseFloat(coordenadas[0]), y: parseFloat(coordenadas[1]) };
+    }
+
+    // Función para encontrar el valor mínimo de x e y
+    function encontrarMinimos(comando) {
+        console.log('comando', comando)
+        
+        const partes = comando.split(/[ML]/).filter(part => part.trim() !== ""); // Dividir por M y L y filtrar partes vacías
+        let minX = Infinity;
+        let minY = Infinity;
+
+        partes.forEach(parte => {
+            const coordenadas = parte.trim().split(" "); // Dividir cada parte en coordenadas x e y
+            if (coordenadas.length === 2) { // Verificar si hay dos coordenadas
+                const x = parseFloat(coordenadas[0]);
+                const y = parseFloat(coordenadas[1]);
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+            }
+        });
+
+        // Devolver los valores mínimos encontrados
+        //return { minX, minY };
+        setMinX(minX);
+        setMinY(minY);
+    }
     useEffect(() => {
         getPlots();
     }, [])
@@ -201,9 +232,14 @@ export default function MainPage() {
     }, [cropList])
 
     useEffect(() => {
-        console.log('Terreno elegido', selectedPlot)
+        if (selectedPlot === undefined) return
+        console.log('Terreno elegido', selectedPlot);
+        encontrarMinimos(selectedPlot.svg_geom);
     }, [selectedPlot])
 
+    useLayoutEffect(() => {
+        console.log(minX, minY);
+    }, [minX, minY, selectedPlot])
     return (
         <Tabs
             id="justify-tab-example"
@@ -222,7 +258,7 @@ export default function MainPage() {
                             <div>
                                 <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione la parcela</h1>
                                 <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
-                                    <svg id="svg" width="600" height="400" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183">
+                                    <svg id="svg" width="600" height="400" viewBox="443699.75456394313 -1146566.6288744938 870 600">
                                         {createPlots(plots, selectedPlotIndex)}
                                     </svg>
                                 </div>
@@ -340,7 +376,7 @@ export default function MainPage() {
                                         </Col>
                                         <Col sm className='mb-2 d-flex flex-column align-items-center'>
                                             <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px', alignContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-                                                <svg id="svg" width="100%" height="100%" viewBox="443698.75456394313 -1146566.6288744938 872.5160287136096 598.7469839074183" preserveAspectRatio="xMidYMid meet">
+                                                <svg id="svg" width="100%" height="100%" viewBox={`${minX} ${minY} 400 400`}>
                                                     {
                                                         responseData.map((crop, index) => {
                                                             return (
