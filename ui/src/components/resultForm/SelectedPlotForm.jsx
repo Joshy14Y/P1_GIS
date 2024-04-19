@@ -25,6 +25,6 @@ export const SelectedPlotForm = ({ selectedPlot,selectedPlotIndex }) => {
 }
 
 SelectedPlotForm.propTypes = {
-    selectedPlot: PropTypes.object.isRequired,
+    selectedPlot: PropTypes.object,
     selectedPlotIndex: PropTypes.number.isRequired,
 };

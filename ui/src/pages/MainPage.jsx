@@ -44,7 +44,10 @@ export default function MainPage() {
     const [oversized, setOversized] = useState(false);
 
     const [minX, setMinX] = useState(0);
-    const [minY, setMinY] = useState(0)
+    const [minY, setMinY] = useState(0);
+
+    const [width, setWidth] = useState(300); // ancho
+    const [height, setHeight] = useState(300); // alto
 
     const getPlots = async () => {
         let data = []
@@ -100,32 +103,16 @@ export default function MainPage() {
 
 
     const checkDataForResult = async () => {
-        setMissingDataFlag(false)
+        setMissingDataFlag(false);
         setResultFlag(false);
         setOversized(false);
         setTotalCropsArea(0);
-        let dataFromSplit = []
-        let retrieveData = []
+        let dataFromSplit = [];
+        let retrieveData = [];
 
-        if (cropList.length === 0) {
-            //bandera de que agregue cultivos
-            console.log('sin cultivos')
-            setMissingDataFlag(true)
-            return
-        }
-
-        if (Object.keys(selectedPlot).length === 0) {
-            //bandera de que elija un terreno
-            console.log('sin terreno')
-            setMissingDataFlag(true)
-            return
-        }
-
-        if (cut === '') {
-            //bandera de que un corte
-            console.log('sin corte')
-            setMissingDataFlag(true)
-            return
+        if (cropList.length === 0 || Object.keys(selectedPlot).length === 0 || cut === '') {
+            setMissingDataFlag(true);
+            return;
         }
 
         const newCutList = cropList.map((crop) => crop.areaPerCrop * crop.quantity);
@@ -134,48 +121,38 @@ export default function MainPage() {
         const newCropTotalArea = newCutList.reduce((totalArea, crop) => totalArea + crop, 0);
         setTotalCropsArea(newCropTotalArea);
 
-
         if (selectedPlot.area < newCropTotalArea) {
             setOversized(true);
             return;
         }
-        console.log('cut', cut);
+
         switch (cut) {
             case 'vertical':
                 retrieveData = await verticalCuts(selectedPlot.geom, newCutList);
-                if (retrieveData === undefined) {
-                    setUndefinedFlag(true);
-                    return;
-                }
-                setResponseData(retrieveData);
                 break;
             case 'horizontal':
                 retrieveData = await horizontalCuts(selectedPlot.geom, newCutList);
-                if (retrieveData === undefined) {
-                    setUndefinedFlag(true);
-                    return;
-                }
-                setResponseData(retrieveData);
                 break;
             case 'grid':
                 dataFromSplit = splitListFun(newCutList);
                 retrieveData = await gridCuts(selectedPlot.geom, dataFromSplit.List, dataFromSplit.middleIndex);
-                if (retrieveData === undefined) {
-                    setUndefinedFlag(true);
-                    return;
-                }
-                setResponseData(retrieveData);
                 break;
             case 'custom':
                 retrieveData = await customCuts(selectedPlot.geom, newCutList, angle);
-                if (retrieveData === undefined) {
-                    setUndefinedFlag(true);
-                    return;
-                }
-                setResponseData(retrieveData);
+                break;
+            default:
                 break;
         }
+
+        if (retrieveData === undefined) {
+            setUndefinedFlag(true);
+            return;
+        }
+
+        setResponseData(retrieveData);
+        encontrarMinimos(retrieveData);
         setResultFlag(true);
+
     }
 
     const chooseColor = (index, cropList) => {
@@ -190,33 +167,49 @@ export default function MainPage() {
         }
     }
 
-    function extraerCoordenadas(punto) {
-        const coordenadas = punto.split(" ");
-        return { x: parseFloat(coordenadas[0]), y: parseFloat(coordenadas[1]) };
-    }
-
-    // Función para encontrar el valor mínimo de x e y
-    function encontrarMinimos(comando) {
-        console.log('comando', comando)
-        
-        const partes = comando.split(/[ML]/).filter(part => part.trim() !== ""); // Dividir por M y L y filtrar partes vacías
+    function encontrarMinimos(dataToCheck) {
         let minX = Infinity;
         let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
 
-        partes.forEach(parte => {
-            const coordenadas = parte.trim().split(" "); // Dividir cada parte en coordenadas x e y
-            if (coordenadas.length === 2) { // Verificar si hay dos coordenadas
-                const x = parseFloat(coordenadas[0]);
-                const y = parseFloat(coordenadas[1]);
-                minX = Math.min(minX, x);
-                minY = Math.min(minY, y);
+        dataToCheck.forEach(crop => {
+            const coordinates = crop.geom_svg.match(/[-]?\d+(\.\d+)?/g); // Extraer todas las coordenadas numéricas de la cadena SVG
+            for (let i = 0; i < coordinates.length; i += 2) {
+                const parsedX = parseFloat(coordinates[i]);
+                const parsedY = parseFloat(coordinates[i + 1]);
+
+                minX = Math.min(minX, parsedX);
+                minY = Math.min(minY, parsedY);
+                maxX = Math.max(maxX, parsedX);
+                maxY = Math.max(maxY, parsedY);
             }
         });
 
-        // Devolver los valores mínimos encontrados
-        //return { minX, minY };
         setMinX(minX);
         setMinY(minY);
+        return { minX, minY, maxX, maxY };
+    }
+
+    function setHeightAndSetWidth(plot) {
+        switch (plot.id) {
+            case 1:
+                setHeight(300)
+                setWidth(300)
+                break;
+            case 2:
+                setHeight(200)
+                setWidth(200)
+                break;
+            case 3:
+                setHeight(100)
+                setWidth(120)
+                break;
+            case 4:
+                setHeight(200)
+                setWidth(200)
+                break;
+        }
     }
     useEffect(() => {
         getPlots();
@@ -228,18 +221,19 @@ export default function MainPage() {
     }, [cut])
 
     useEffect(() => {
-        console.log('Lista de cultivos', cropList)
-    }, [cropList])
-
-    useEffect(() => {
-        if (selectedPlot === undefined) return
-        console.log('Terreno elegido', selectedPlot);
-        encontrarMinimos(selectedPlot.svg_geom);
+        if (selectedPlot === undefined) return;
+        setHeightAndSetWidth(selectedPlot);
+        setResultFlag(false);
     }, [selectedPlot])
 
-    useLayoutEffect(() => {
-        console.log(minX, minY);
-    }, [minX, minY, selectedPlot])
+    useEffect(() => {
+        console.log('width', width, 'height', height);
+    }, [width, height])
+
+    useEffect(() => {
+        setResultFlag(false);
+    }, [cropList])
+
     return (
         <Tabs
             id="justify-tab-example"
@@ -258,7 +252,7 @@ export default function MainPage() {
                             <div>
                                 <h1 style={{ textAlign: 'center', top: 0, zIndex: 1, background: 'white' }}>Seleccione la parcela</h1>
                                 <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px' }}>
-                                    <svg id="svg" width="600" height="400" viewBox="443699.75456394313 -1146566.6288744938 870 600">
+                                    <svg id="svg" width="600" height="400" viewBox="443699.75456394313 -1146566.6288744938 860 600">
                                         {createPlots(plots, selectedPlotIndex)}
                                     </svg>
                                 </div>
@@ -376,7 +370,7 @@ export default function MainPage() {
                                         </Col>
                                         <Col sm className='mb-2 d-flex flex-column align-items-center'>
                                             <div style={{ padding: '10px', border: '2px solid black', marginTop: '10px', alignContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-                                                <svg id="svg" width="100%" height="100%" viewBox={`${minX} ${minY} 400 400`}>
+                                                <svg id="svg" width="400" height="400" viewBox={`${minX - 50} ${minY - 50} ${width} ${height}`}>
                                                     {
                                                         responseData.map((crop, index) => {
                                                             return (
